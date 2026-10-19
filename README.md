@@ -1,6 +1,6 @@
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border: 0; border-collapse: collapse;">
 <tr style="border: 0;">
-<td valign="middle" style="border: 0; padding: 0 12px 0 0;"><img src="public/applebatteryscout-logo.png" alt="ABS logo" width="56" /></td>
+<td valign="middle" style="border: 0; padding: 0 12px 0 0;"><img src="public/applebatteryscout-logo.png" alt="ABS logo" width="42" /></td>
 <td valign="middle" style="border: 0; padding: 0;"><p role="heading" aria-level="1"><strong><font size="7">Apple Battery Scout</font></strong></p></td>
 </tr>
 </table>
