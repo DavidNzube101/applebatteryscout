@@ -1,0 +1,6 @@
+node_modules
+.svelte-kit
+build
+.DS_Store
+.env
+Analytics-2026-10-19-mock.ips
