@@ -26,7 +26,7 @@ bun run dev
 
 ## Author
 
-David Nzube
+David Nzube · [X](https://x.com/davidnzubee)
 
 ## License
 
