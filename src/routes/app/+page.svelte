@@ -220,7 +220,7 @@
 					ondragleave={() => dragging = false}
 					ondrop={onDrop}
 				>
-					<h1>Drop file here</h1>
+					<h1>Drop your Analytics file here</h1>
 					<Button class="choose-button" size="lg" onclick={openPicker} disabled={busy}>
 						{busy ? 'Reading file' : 'Choose file'}
 						{#if !busy}<ArrowRight size={16} />{/if}
