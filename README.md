@@ -1,4 +1,9 @@
-# <img src="public/applebatteryscout-logo.png" alt="ABS logo" width="56" align="middle" /> Apple Battery Scout
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border: 0; border-collapse: collapse;">
+<tr style="border: 0;">
+<td valign="middle" style="border: 0; padding: 0 12px 0 0;"><img src="public/applebatteryscout-logo.png" alt="ABS logo" width="56" /></td>
+<td valign="middle" style="border: 0; padding: 0;"><h1 style="border: 0; margin: 0;">Apple Battery Scout</h1></td>
+</tr>
+</table>
 
 [![CI](https://github.com/DavidNzube101/applebatteryscout/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DavidNzube101/applebatteryscout/actions/workflows/ci.yml)
 ![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?logo=svelte&logoColor=white)
