@@ -5,20 +5,24 @@
 ![Bun](https://img.shields.io/badge/Bun-000000?logo=bun&logoColor=white)
 ![Apple](https://img.shields.io/badge/Apple-iPhone%20Analytics-000000?logo=apple&logoColor=white)
 
-## Development
+## Running locally
 
 ```sh
 bun install
 bun run dev
 ```
 
-## Routes
-
 - `/` landing page
 - `/app` battery analytics checker
-
-## Commands
 
 - `bun run check` typecheck
 - `bun run test` unit tests
 - `bun run build` production build
+
+## Author
+
+David Nzube
+
+## License
+
+[MIT](LICENSE)
