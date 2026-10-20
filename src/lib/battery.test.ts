@@ -87,6 +87,17 @@ describe('analyzeBatteryText', () => {
 		expect(result.risk).toBe('consistent');
 	});
 
+	test('flags a large high-cycle gap between iOS reported health and capacity ratio', () => {
+		const result = analyzeBatteryText(
+			'{ "last_value_CycleCount": 1059, "last_value_NominalChargeCapacity": 2491, "last_value_MaximumFCC": 3367, "last_value_MaximumCapacityPercent": 100 }',
+			'Analytics.ips.ca.synced'
+		);
+
+		expect(result.health).toBe(74);
+		expect(result.reportedHealth).toBe(100);
+		expect(result.risk).toBe('critical');
+	});
+
 	test('returns incomplete metrics when the diagnostic values are absent', () => {
 		const result = analyzeBatteryText('{ "DeviceName": "iPhone" }', 'other.ips');
 

@@ -53,16 +53,33 @@
 			steps: ['Choose the newest Analytics file without “-Census-” in its name.', 'If values are still missing, try the next daily file or request an in-person diagnostic.']
 		}
 	} satisfies Record<BatteryMetrics['risk'], { summary: string; text: string; steps: string[] }>;
-	const conditionHealth = $derived(metrics?.reportedHealth ?? metrics?.health ?? null);
+	const conditionHealth = $derived(metrics?.health ?? metrics?.reportedHealth ?? null);
+	const reportedGap = $derived(metrics && metrics.reportedHealth !== null && metrics.health !== null
+		? metrics.reportedHealth - metrics.health
+		: null);
 	const conditionCopy = $derived(conditionHealth === null
 		? { label: 'Condition unavailable', className: 'unknown' }
 		: conditionHealth <= 80
-			? { label: 'Low capacity reading', className: 'low' }
+			? { label: 'Low capacity estimate', className: 'low' }
 			: conditionHealth <= 90
-				? { label: 'Reduced capacity reading', className: 'reduced' }
-				: { label: 'Capacity near factory level', className: 'normal' });
+				? { label: 'Reduced capacity estimate', className: 'reduced' }
+				: { label: 'Estimate near factory level', className: 'normal' });
 	const guidance = $derived.by(() => {
 		if (!metrics) return null;
+		if (metrics.risk === 'critical' && reportedGap !== null && reportedGap >= 15) {
+			return {
+				summary: 'Reported health conflicts with the capacity estimate.',
+				text: `iOS reports ${metrics.reportedHealth ?? 'N/A'}% while the capacity ratio estimates ${metrics.health ?? 'N/A'}%, a ${Math.round(reportedGap)}-point gap at ${metrics.cycles?.toLocaleString() ?? 'N/A'} cycles. This is a strong spoofing signal, but the file alone cannot prove tampering.`,
+				steps: ['Ask whether the battery or its control flex was replaced or modified.', 'Have a trusted repair shop inspect the battery and its reported health before buying.']
+			};
+		}
+		if (metrics.risk === 'suspicious' && reportedGap !== null && reportedGap >= 10) {
+			return {
+				summary: 'The reported health is higher than the capacity estimate.',
+				text: `iOS reports ${metrics.reportedHealth ?? 'N/A'}% while the capacity ratio estimates ${metrics.health ?? 'N/A'}%, a ${Math.round(reportedGap)}-point gap. Ask for the battery and repair history, then verify it independently.`,
+				steps: ['Ask about battery replacement or repair history.', 'Request an independent battery diagnostic before agreeing on a price.']
+			};
+		}
 		if (metrics.risk === 'consistent' && conditionHealth !== null && conditionHealth <= 80) {
 			return {
 				summary: 'The battery shows substantial wear.',
@@ -294,7 +311,7 @@
 								<li><span>2</span><p>Tap <strong>Analytics &amp; Improvements</strong>.</p></li>
 								<li><span>3</span><p>Turn on <strong>Share iPhone Analytics</strong> (or <strong>Share iPhone &amp; Watch Analytics</strong>).</p></li>
 							</ol>
-							<p class="analytics-wait"><strong>Then wait up to 24 hours.</strong> A new Analytics file may take a night or a full day to appear. Check Analytics Data again tomorrow and choose the newest file.</p>
+							<p class="analytics-wait"><strong>Then wait up to 24 hours.</strong> A new Analytics file may take a night or a full day to appear. Check Analytics Data again tomorrow and choose the newest file. At a store, ask the seller to turn on Share iPhone Analytics and come back tomorrow. If you need this check, wait to buy until the new file is available.</p>
 						</Drawer.Content>
 					</Drawer.Root>
 					<input
@@ -312,7 +329,7 @@
 					<div class="health-feature">
 						<h1>Estimated health</h1>
 						<p class="health-value"><TypewriterText text={metrics.health !== null ? `${metrics.health}%` : 'N/A'} /></p>
-						{#if metrics.reportedHealth !== null}<p class="reported-health"><TypewriterText text={`iOS recorded maximum capacity: ${metrics.reportedHealth}%`} /></p>{/if}
+						{#if metrics.reportedHealth !== null}<p class="reported-health"><TypewriterText text={`iOS-reported maximum capacity: ${metrics.reportedHealth}%`} /></p>{/if}
 						<p class="filename" title={metrics.filename}><TypewriterText text={metrics.filename} /></p>
 					</div>
 					<dl class="metric-list">

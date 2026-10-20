@@ -83,8 +83,11 @@ export function analyzeBatteryText(source: string, filename: string): BatteryMet
 
 	let risk: BatteryMetrics['risk'] = 'incomplete';
 	if (cycles !== null && health !== null) {
+		const reportedGap = reportedHealth !== null ? reportedHealth - health : null;
 		if (cycles > 150 && health >= 99) risk = 'critical';
+		else if (cycles > 150 && reportedHealth !== null && reportedHealth >= 99 && health <= 80 && reportedGap !== null && reportedGap >= 15) risk = 'critical';
 		else if (cycles > 250 && health > 95) risk = 'suspicious';
+		else if (cycles > 150 && reportedGap !== null && reportedGap >= 10) risk = 'suspicious';
 		else risk = 'consistent';
 	}
 
