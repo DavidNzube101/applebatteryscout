@@ -13,6 +13,7 @@ describe('analyzeBatteryText', () => {
 			nominalCapacity: 3160,
 			maximumCapacity: 3200,
 			health: 98.8,
+			reportedHealth: null,
 			risk: 'suspicious',
 			filename: 'Analytics-2026-10-18.ips'
 		});
@@ -51,14 +52,39 @@ describe('analyzeBatteryText', () => {
 		expect(result.risk).toBe('critical');
 	});
 
-	test('marks a profile healthy when it does not meet either risk threshold', () => {
+	test('marks a profile consistent when it does not meet either risk threshold', () => {
 		const result = analyzeBatteryText(
 			'{ "CycleCount": 500, "NominalChargeCapacity": 2880, "MaximumFCC": 3200 }',
 			'analytics.ips'
 		);
 
 		expect(result.health).toBe(90);
-		expect(result.risk).toBe('healthy');
+		expect(result.risk).toBe('consistent');
+	});
+
+	test('prefers the daily battery record over an older calibration record and reads iOS health', () => {
+		const source = [
+			JSON.stringify({ name: 'BatteryConfigValueHistogramFinal_V2', message: {
+				last_value_CycleCount: 1657,
+				last_value_NominalChargeCapacity: 2294,
+				last_value_MaximumFCC: 3351,
+				last_value_MaximumCapacityPercent: 72
+			} }),
+			JSON.stringify({ name: 'AzulE_Battery_Calibration_Baseline', message: {
+				last_value_CycleCount: 205,
+				last_value_NominalChargeCapacity: 2802,
+				last_value_MaximumFCC: 3351,
+				last_value_MaximumCapacityPercent: -1
+			} })
+		].join('\n');
+		const result = analyzeBatteryText(source, 'Analytics.ips.ca.synced');
+
+		expect(result.cycles).toBe(1657);
+		expect(result.nominalCapacity).toBe(2294);
+		expect(result.maximumCapacity).toBe(3351);
+		expect(result.health).toBe(68.5);
+		expect(result.reportedHealth).toBe(72);
+		expect(result.risk).toBe('consistent');
 	});
 
 	test('returns incomplete metrics when the diagnostic values are absent', () => {
@@ -69,6 +95,7 @@ describe('analyzeBatteryText', () => {
 			nominalCapacity: null,
 			maximumCapacity: null,
 			health: null,
+			reportedHealth: null,
 			risk: 'incomplete',
 			filename: 'other.ips'
 		});

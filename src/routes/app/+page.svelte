@@ -42,9 +42,9 @@
 			text: 'The recorded capacity is unusually strong for this cycle count. Ask the seller to explain the readings.',
 			steps: ['Ask about battery replacement history and any supporting receipts.', 'Request an independent diagnostic before agreeing on a price.']
 		},
-		healthy: {
-			summary: 'These values look broadly consistent.',
-			text: 'The readings do not trigger our capacity and cycle-count checks. This does not verify the battery’s condition or repair history.',
+		consistent: {
+			summary: 'No spoofing signal found in these values.',
+			text: 'The readings do not trigger our capacity and cycle-count checks. This screening result does not mean the battery is in good condition.',
 			steps: ['Confirm the phone’s battery replacement and repair history.', 'Inspect the phone in person and compare its reported health with this estimate.']
 		},
 		incomplete: {
@@ -53,14 +53,32 @@
 			steps: ['Choose the newest Analytics file without “-Census-” in its name.', 'If values are still missing, try the next daily file or request an in-person diagnostic.']
 		}
 	} satisfies Record<BatteryMetrics['risk'], { summary: string; text: string; steps: string[] }>;
-	const guidance = $derived(metrics ? assessmentCopy[metrics.risk] : null);
+	const conditionHealth = $derived(metrics?.reportedHealth ?? metrics?.health ?? null);
+	const conditionCopy = $derived(conditionHealth === null
+		? { label: 'Condition unavailable', className: 'unknown' }
+		: conditionHealth <= 80
+			? { label: 'Low capacity reading', className: 'low' }
+			: conditionHealth <= 90
+				? { label: 'Reduced capacity reading', className: 'reduced' }
+				: { label: 'Capacity near factory level', className: 'normal' });
+	const guidance = $derived.by(() => {
+		if (!metrics) return null;
+		if (metrics.risk === 'consistent' && conditionHealth !== null && conditionHealth <= 80) {
+			return {
+				summary: 'The battery shows substantial wear.',
+				text: 'The capacity reading is low, but these values do not trigger our spoofing checks. Treat battery condition and possible tampering as separate questions.',
+				steps: ['Ask about battery replacement and service history.', 'Factor the low capacity reading into the price and have the battery checked before buying.']
+			};
+		}
+		return assessmentCopy[metrics.risk];
+	});
 
 	const riskCopy = $derived(metrics?.risk === 'critical'
 		? { label: 'Critical risk', className: 'critical' }
 		: metrics?.risk === 'suspicious'
 			? { label: 'High suspicion', className: 'suspicious' }
-			: metrics?.risk === 'healthy'
-				? { label: 'Looks consistent', className: 'healthy' }
+			: metrics?.risk === 'consistent'
+				? { label: 'No spoofing signal detected', className: 'consistent' }
 				: { label: 'Incomplete report', className: 'incomplete' });
 
 	function openPicker() { inputElement?.click(); }
@@ -130,7 +148,7 @@
 	async function processFile(file?: File) {
 		error = '';
 		if (!file) return;
-		if (!/\.(ips(?:\.ca)?\.synced|ips|txt|ca-synced)$/i.test(file.name) || file.size === 0) {
+		if (!/\.(ips(?:[.-]ca)?\.synced|ips|txt|ca-synced)$/i.test(file.name) || file.size === 0) {
 			error = "Could not parse metrics. Ensure this is an active daily 'Analytics-YYYY...' system file.";
 			return;
 		}
@@ -282,7 +300,6 @@
 					<input
 						bind:this={inputElement}
 						type="file"
-						accept=".ips,.txt,.ca-synced,.ips.ca.synced"
 						onchange={(event) => processFile(event.currentTarget.files?.[0])}
 					/>
 				</div>
@@ -295,6 +312,7 @@
 					<div class="health-feature">
 						<h1>Estimated health</h1>
 						<p class="health-value"><TypewriterText text={metrics.health !== null ? `${metrics.health}%` : 'N/A'} /></p>
+						{#if metrics.reportedHealth !== null}<p class="reported-health"><TypewriterText text={`iOS recorded maximum capacity: ${metrics.reportedHealth}%`} /></p>{/if}
 						<p class="filename" title={metrics.filename}><TypewriterText text={metrics.filename} /></p>
 					</div>
 					<dl class="metric-list">
@@ -306,6 +324,7 @@
 
 				<div class="report-analysis">
 					<p class="risk-label {riskCopy.className}"><TypewriterText text={riskCopy.label} /></p>
+					<p class="condition-label {conditionCopy.className}"><TypewriterText text={conditionCopy.label} /></p>
 					<h2 class="summary"><TypewriterText text={guidance?.summary ?? ''} /></h2>
 					<p class="analysis-description"><TypewriterText text={guidance?.text ?? ''} /></p>
 				</div>
@@ -395,7 +414,8 @@
 	:global(.result-card), :global(.recommendations-card) { gap: 0; padding: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: none; }
 	.health-feature { padding: 35px 24px 30px; text-align: center; }
 	.health-feature h1 { margin: 0; color: var(--muted); font-size: .9rem; font-weight: 500; letter-spacing: -.02em; }
-	.health-value { margin: 12px 0 16px; color: var(--foreground); font-size: clamp(4.8rem, 15vw, 7.5rem); font-weight: 550; line-height: 1; letter-spacing: -.075em; font-variant-numeric: tabular-nums; }
+	.health-value { margin: 12px 0 8px; color: var(--foreground); font-size: clamp(4.8rem, 15vw, 7.5rem); font-weight: 550; line-height: 1; letter-spacing: -.075em; font-variant-numeric: tabular-nums; }
+	.reported-health { margin: 0 0 13px; color: var(--muted); font-size: .75rem; line-height: 1.5; }
 	.filename { max-width: 100%; overflow: hidden; margin: 0; color: var(--subtle); font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
 	.metric-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 24px 14px; border-top: 1px solid var(--border); }
 	.metric-row { min-width: 0; padding: 0 12px; text-align: center; }
@@ -404,14 +424,19 @@
 	.metric-row dd { margin: 9px 0 0; color: var(--foreground); font-size: 1.3rem; font-weight: 550; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
 	.metric-row small { color: var(--subtle); font-size: .67rem; font-weight: 450; letter-spacing: 0; }
 	.report-analysis { margin-top: 28px; }
-	.risk-label { margin: 0 0 9px; font-size: .75rem; font-weight: 550; }
+	.risk-label { margin: 0 0 7px; font-size: .75rem; font-weight: 550; }
 	.risk-label.critical { color: #b91c1c; }
 	.risk-label.suspicious { color: #b45309; }
-	.risk-label.healthy { color: #047857; }
+	.risk-label.consistent { color: #047857; }
 	.risk-label.incomplete { color: var(--muted); }
+	.condition-label { margin: 0 0 9px; font-size: .75rem; font-weight: 550; }
+	.condition-label.low { color: #b45309; }
+	.condition-label.reduced { color: #8a6b16; }
+	.condition-label.normal, .condition-label.unknown { color: var(--muted); }
 	:global(.dark) .risk-label.critical { color: #fca5a5; }
 	:global(.dark) .risk-label.suspicious { color: #fcd34d; }
-	:global(.dark) .risk-label.healthy { color: #6ee7b7; }
+	:global(.dark) .risk-label.consistent { color: #6ee7b7; }
+	:global(.dark) .condition-label.low, :global(.dark) .condition-label.reduced { color: #fcd34d; }
 	.summary { margin: 0; color: var(--foreground); font-size: clamp(1.2rem, 4vw, 1.5rem); font-weight: 550; letter-spacing: -.04em; line-height: 1.3; }
 	.analysis-description { margin: 10px 0 0; color: var(--muted); font-size: .84rem; line-height: 1.7; }
 	.assessment-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 17px; color: var(--subtle); font-size: .73rem; line-height: 1.6; }
