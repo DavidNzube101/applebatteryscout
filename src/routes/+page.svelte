@@ -40,7 +40,7 @@
 
 	onMount(() => {
 		const controller = new AbortController();
-		fetch('https://api.github.com/repos/davidnzube101/applebatteryhealth', {
+		fetch('https://api.github.com/repos/davidnzube101/applebatteryscout', {
 			headers: { Accept: 'application/vnd.github+json' },
 			signal: controller.signal
 		})
@@ -104,13 +104,13 @@
 			</div>
 
 			<aside class="github-bar" use:reveal aria-label="Apple Battery Scout on GitHub">
-				<a class="github-repo" href="https://github.com/davidnzube101/applebatteryhealth" target="_blank" rel="noreferrer">
+				<a class="github-repo" href="https://github.com/davidnzube101/applebatteryscout" target="_blank" rel="noreferrer">
 					<Github size={19} strokeWidth={1.8} />
-					<span>davidnzube101/applebatteryhealth</span>
+					<span>davidnzube101/applebatteryscout</span>
 				</a>
 				<div class="github-support">
 					<span class="star-count" aria-label={`${githubStars ?? 'Loading'} GitHub stars`}><Star size={15} /> {githubStars === null ? '—' : githubStars.toLocaleString()}</span>
-					<a class="star-button" href="https://github.com/davidnzube101/applebatteryhealth" target="_blank" rel="noreferrer" aria-label="Star Apple Battery Scout on GitHub">
+					<a class="star-button" href="https://github.com/davidnzube101/applebatteryscout" target="_blank" rel="noreferrer" aria-label="Star Apple Battery Scout on GitHub">
 						<Star size={15} /> <span>Star on GitHub</span>
 					</a>
 				</div>
