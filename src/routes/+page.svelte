@@ -70,6 +70,7 @@
 		</a>
 		<nav class="nav-links" aria-label="Main navigation">
 			<a href="#how-it-works">How it works</a>
+			<a href="/blog/">Blog</a>
 		</nav>
 		<div class="nav-actions">
 			<ThemeToggle />
@@ -103,24 +104,24 @@
 				</p>
 			</div>
 
+			<footer class="site-footer" use:reveal>
+				<a class="footer-brand" href="#top" aria-label="Battery Scout home"><img class="brand-logo" src="/applebatteryscout-logo.png" alt="" /></a>
+				<p>Apple Battery Scout is an independent utility tools resource. It is not affiliated with, authorized, certified, or sponsored by Apple Inc.</p>
+				<a class="copyright-link" href="https://github.com/davidnzube101" target="_blank" rel="noreferrer">© 2026 Skipp</a>
+			</footer>
+
 			<aside class="github-bar" use:reveal aria-label="Apple Battery Scout on GitHub">
 				<a class="github-repo" href="https://github.com/davidnzube101/applebatteryscout" target="_blank" rel="noreferrer">
 					<Github size={19} strokeWidth={1.8} />
 					<span>davidnzube101/applebatteryscout</span>
 				</a>
 				<div class="github-support">
-					<span class="star-count" aria-label={`${githubStars ?? 'Loading'} GitHub stars`}><Star size={15} /> {githubStars === null ? '—' : githubStars.toLocaleString()}</span>
+					<span class="star-count" aria-label={`${githubStars ?? 'Loading'} GitHub stars`}><Star size={15} /> {githubStars === null ? '...' : githubStars.toLocaleString()}</span>
 					<a class="star-button" href="https://github.com/davidnzube101/applebatteryscout" target="_blank" rel="noreferrer" aria-label="Star Apple Battery Scout on GitHub">
 						<Star size={15} /> <span>Star on GitHub</span>
 					</a>
 				</div>
 			</aside>
-
-			<footer class="site-footer" use:reveal>
-				<a class="footer-brand" href="#top" aria-label="Battery Scout home"><img class="brand-logo" src="/applebatteryscout-logo.png" alt="" /></a>
-				<p>Apple Battery Scout is an independent utility tools resource. It is not affiliated with, authorized, certified, or sponsored by Apple Inc.</p>
-				<a class="copyright-link" href="https://github.com/davidnzube101" target="_blank" rel="noreferrer">© 2026 Skipp</a>
-			</footer>
 		</div>
 	</section>
 </main>
@@ -159,7 +160,7 @@
 	.typed-copy-progress { position: absolute; inset: 0 auto auto 0; width: 100%; }
 	.typed-word { display: inline-block; animation: word-soft-reveal .5s cubic-bezier(.22, 1, .36, 1) both; }
 	@keyframes word-soft-reveal { from { opacity: 0; filter: blur(4px); transform: translateY(2px); } to { opacity: 1; filter: blur(0); transform: translateY(0); } }
-	.github-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 72px; padding: 15px 17px; border: 1px solid var(--border); border-radius: 14px; background: var(--background); }
+	.github-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding: 15px 17px; border: 1px solid var(--border); border-radius: 14px; background: var(--background); }
 	.github-repo, .github-support, .star-count, .star-button { display: inline-flex; align-items: center; }
 	.github-repo { min-width: 0; gap: 10px; color: var(--foreground); font-size: .82rem; font-weight: 550; }
 	.github-repo span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -185,7 +186,7 @@
 		.section-wrap { width: min(100% - 44px, 560px); padding: 76px 0 24px; }
 		.site-footer { align-items: flex-start; flex-wrap: wrap; gap: 10px 15px; }
 		.site-footer > p { order: 3; flex-basis: 100%; }
-		.github-bar { margin-top: 56px; }
+		.github-bar { margin-top: 18px; }
 	}
 	@media (max-width: 480px) {
 		.hero-stage { padding: 0 18px; }
